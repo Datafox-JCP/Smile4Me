@@ -11,7 +11,7 @@ import SwiftUI
 struct Smile4MeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            JokeContentView()
         }
     }
 }
