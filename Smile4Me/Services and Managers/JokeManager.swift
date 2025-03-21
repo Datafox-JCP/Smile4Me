@@ -10,6 +10,7 @@ import OSLog
 
 class JokeManager {
     let logger = Logger(subsystem: "SmileForMe.Service", category: "JokeManager")
+    let issueURL = "https://github.com/Sv443-Network/JokeAPI/issues/new?assignees=Sv443&labels=joke+edit&projects=&template=3_edit_a_joke.md&title="
     
     func getJoke(
         category: Category = .Any,
