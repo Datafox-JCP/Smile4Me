@@ -41,7 +41,7 @@ struct JokeContentView: View {
                                 } // Loop
                             } // Category picker
                         } // HStack
-                        
+                        .buttonStyle(.bordered)
                         Button {
                             Task {
                                 await getJoke()
@@ -61,19 +61,28 @@ struct JokeContentView: View {
                             } // Joke found
                         } // HStack
                         
+#if os(iOS)
+                        if let joke {
+                            TranslationView(joke: joke)
+                        }
+#endif
                         HStack(alignment: .top) {
                             if let joke {
-                                Button("Report Joke") {
+                                Button("Report Joke", role: .destructive) {
                                     let jokeToReport = "Joke ID: \(joke.id)\nJoke: \(joke.fullJoke)"
+#if os(macOS)
                                     let pasteboard = NSPasteboard.general
                                     pasteboard.declareTypes([.string], owner: nil)
                                     pasteboard.setString(jokeToReport, forType: .string)
+#else
+                                    let pasteboard = UIPasteboard.general
+                                    pasteboard.string = jokeToReport
+#endif
                                     
                                     guard let url = URL(string: jokeManager.issueURL) else { return }
                                     openURL(url)
-                                    
                                 } // Report button
-                                
+                                .buttonStyle(.bordered)
                                 Text("Yo can report an unsafe joke. The Joke id and content will be on your clipboard.")
                                     .font(.caption)
                                     .lineLimit(nil)
@@ -88,14 +97,20 @@ struct JokeContentView: View {
             .navigationTitle("Smile4Me")
         } // Nav
         // MARK: Tasks
-        .task {
-            await getJoke()
+        .firstOnAppear {
+            Task {
+                await getJoke()
+            }
         }
-        .task(id: category) {
-            await getJoke()
+        .onChange(of: language) {
+            Task {
+                await getJoke()
+            }
         }
-        .task(id: language) {
-            await getJoke()
+        .onChange(of: category) {
+            Task {
+                await getJoke()
+            }
         }
     }
     
@@ -117,4 +132,28 @@ struct JokeContentView: View {
 // MARK: Preview
 #Preview {
     JokeContentView()
+}
+
+// MARK: - View modifier
+struct FirstOnAppearModifier: ViewModifier {
+    @State private var hasPerfomedAction = false
+    
+    let action: (() -> Void)?
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                if !hasPerfomedAction {
+                    hasPerfomedAction = true
+                    action?()
+                }
+            }
+    }
+}
+
+// MARK: Extension
+extension View {
+    func firstOnAppear(performOnce action: (() -> Void)? = nil) -> some View {
+        modifier(FirstOnAppearModifier(action: action))
+    }
 }

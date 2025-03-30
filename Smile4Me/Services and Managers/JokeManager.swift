@@ -26,4 +26,15 @@ class JokeManager {
             throw error
         }
     }
+    
+    func getInfo() async throws -> Info {
+        let url = "https://v2.jokeapi.dev/info"
+        let apiService = APIService(urlString: url)
+        
+        do {
+            return try await apiService.getJSON()
+        } catch {
+            throw error
+        }
+    }
 }

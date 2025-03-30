@@ -8,12 +8,12 @@
 import Foundation
 
 class APIService {
-    public let urlString: String
-    public init(urlString: String) {
+    let urlString: String
+    init(urlString: String) {
         self.urlString = urlString
     }
     
-    public func getJSON<T: Decodable>() async throws(APIError) -> T {
+    func getJSON<T: Decodable>() async throws(APIError) -> T {
         guard let url = URL(string: urlString) else {
             throw .invalidURL
         }
@@ -36,13 +36,13 @@ class APIService {
     }
 }
 
-public enum APIError: Error, LocalizedError {
+enum APIError: Error, LocalizedError {
     case invalidURL
     case dataTaskError(String)
     case invalidResponseStatus
     case decodingError(String)
     
-    public var errorDescription: String? {
+    var errorDescription: String? {
         switch self {
         case .invalidURL:
             NSLocalizedString("La URL del endpoint no es válida", comment: "")
